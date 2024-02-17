@@ -8,7 +8,7 @@ namespace CalicotGaming.Web.Models
             : base(options)
         {
         }
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Product>? Products { get; set; }
     }
 }
 
