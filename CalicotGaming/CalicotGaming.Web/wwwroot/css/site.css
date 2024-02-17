@@ -16,3 +16,21 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+
+/* style the product catalog */
+/* https://css-tricks.com/snippets/css/a-guide-to-flexbox/ */
+.product-image {
+  max-width: 300px;
+}
+
+.product-catalog {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+}
+
+.product-card {
+  max-width: 350px;
+}

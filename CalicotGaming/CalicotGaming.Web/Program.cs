@@ -32,6 +32,15 @@ if (!app.Environment.IsDevelopment())
 }
 
 
+// seed the dbcontext if we're in the dev environment
+if(app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope(); // we need to create a scope to resolved scoped services.
+    var dbContext = scope.ServiceProvider.GetRequiredService<CalicotGamingDbContext>();
+    Helpers.SeedDbContext(dbContext);
+}
+
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
@@ -44,3 +53,7 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+
+
+// https://stackoverflow.com/questions/72447401/cannot-resolve-scoped-service-from-root-provider-in-asp-net-core-6
