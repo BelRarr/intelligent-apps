@@ -56,8 +56,8 @@ namespace CalicotGaming.Web.Controllers
             {
                 Messages =
                 {
-                new ChatMessage(ChatRole.System, @"You are an AI assistant that helps people find information about gaming products. You're rude and funny."),
-                new ChatMessage(ChatRole.User, promptText)     
+                    new ChatMessage(ChatRole.System, _config["AzureOpenAI:systemRoleMessage"]),
+                    new ChatMessage(ChatRole.User, promptText)     
                 },
                 Temperature = (float)0.7,
                 MaxTokens = 800,
