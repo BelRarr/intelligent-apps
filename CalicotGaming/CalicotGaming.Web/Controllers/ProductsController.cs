@@ -7,15 +7,21 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CalicotGaming.Web.Models;
 
+// dotnet add package Azure.AI.OpenAI --version 1.0.0-beta.5
+using Azure;
+using Azure.AI.OpenAI;
+
 namespace CalicotGaming.Web.Controllers
 {
     public class ProductsController : Controller
     {
         private readonly CalicotGamingDbContext _context;
+        private readonly IConfiguration _config;
 
-        public ProductsController(CalicotGamingDbContext context)
+        public ProductsController(CalicotGamingDbContext context, IConfiguration config)
         {
             _context = context;
+            _config = config;
         }
 
         // GET: Products
@@ -26,6 +32,46 @@ namespace CalicotGaming.Web.Controllers
                           Problem("Entity set 'CalicotGamingDbContext.Products'  is null.");
         }
 
+
+        // GET: Products/Assistant
+        // NOTE: In a real-world scenario, I'd have created a ChatService class with an IChatService interface and put that code into it.
+        // But for the sake of the demo, I kept it here to reduce the number of back and forth between code artefacts when explaining the code.
+        // SAMPLE QUESTIONS: 
+        // - what gaming console do you recommend for less than 200$? 
+        // - Recommend a racing game for the Xbox
+        public async Task<IActionResult> Assistant(string promptText)
+        {
+            if(string.IsNullOrEmpty(promptText))
+            {
+                return View();
+            }
+
+            OpenAIClient client = new OpenAIClient(
+            new Uri(_config["AzureOpenAI:aoaiEndpoint"]),
+            new AzureKeyCredential(_config["AzureOpenAI:aoaiKey"]));
+            
+            Response<ChatCompletions> responseWithoutStream = await client.GetChatCompletionsAsync(
+            "gpt-35-turbo",
+            new ChatCompletionsOptions()
+            {
+                Messages =
+                {
+                new ChatMessage(ChatRole.System, @"You are an AI assistant that helps people find information about gaming products. You're rude and funny."),
+                new ChatMessage(ChatRole.User, promptText)     
+                },
+                Temperature = (float)0.7,
+                MaxTokens = 800,
+                NucleusSamplingFactor = (float)0.95,
+                FrequencyPenalty = 0,
+                PresencePenalty = 0,
+            });
+
+            ChatCompletions response = responseWithoutStream.Value;
+
+            return View("Assistant", response.Choices[0].Message.Content);
+        }
+
+/*
         // GET: Products/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -158,5 +204,6 @@ namespace CalicotGaming.Web.Controllers
         {
           return (_context.Products?.Any(e => e.Id == id)).GetValueOrDefault();
         }
+*/
     }
 }

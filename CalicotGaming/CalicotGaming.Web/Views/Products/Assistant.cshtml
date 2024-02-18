@@ -1,0 +1,22 @@
+@model string
+
+@{
+    ViewData["Title"] = "Chat with our AI assistant";
+}
+
+
+<div class="search-bar search-bar-alignment">
+    <p>What are you looking for?</p>
+    <form method="post" action="@Url.Action("Assistant", "Products")">
+        <input name="promptText" type="text" placeholder="What are you looking for today?..." style="width: 80%;">
+        <button type="submit" style="width: 10%;">ASK</button>
+    </form>
+</div>
+
+
+<div class="chatcompletion">
+    <p>@Model</p>
+</div>
+
+
+<a href="@Url.Action("Index", "Products")">Go to the Products Catalog</a>
