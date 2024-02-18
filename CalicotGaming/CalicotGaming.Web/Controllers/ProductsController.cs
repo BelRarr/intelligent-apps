@@ -21,11 +21,26 @@ namespace CalicotGaming.Web.Controllers
         // GET: Products
         public async Task<IActionResult> Index()
         {
-              return _context.Products != null ? 
+              return _context.Products != null ?
                           View(await _context.Products.ToListAsync()) :
                           Problem("Entity set 'CalicotGamingDbContext.Products'  is null.");
         }
 
+
+        // GET: Products/Search
+        public async Task<IActionResult> Search(string searchText)
+        {
+            var filteredResults = await _context.Products!.Where(p => p.Name!.ToLower().Contains(searchText)
+                                                                  || p.Description!.ToLower().Contains(searchText)
+                                                                  || p.Price.ToString().Equals(searchText)
+                                                               ).AsNoTracking()
+                                                               .ToListAsync();
+
+            return View(filteredResults);
+        }
+
+
+/*
         // GET: Products/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -149,7 +164,7 @@ namespace CalicotGaming.Web.Controllers
             {
                 _context.Products.Remove(product);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
@@ -158,5 +173,6 @@ namespace CalicotGaming.Web.Controllers
         {
           return (_context.Products?.Any(e => e.Id == id)).GetValueOrDefault();
         }
+*/
     }
 }

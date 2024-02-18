@@ -1,0 +1,31 @@
+@model IEnumerable<CalicotGaming.Web.Models.Product>
+
+@{
+    ViewData["Title"] = "Search Results";
+}
+
+
+<h1>Your Search Results</h1>
+
+@if(!Model.Any())
+{
+    <h2 class="no-results-message">No results match your query. Sorry!</h2>
+}
+else 
+{
+    <div class="product-catalog">
+
+        @foreach (var product in Model)
+        {
+            <div class="product-card">
+                <img src="@product.PhotoUrl" alt="@product.Name" class="product-image">
+                <h2 class="product-name">@product.Name</h2>
+                <p class="product-price">$@product.Price</p>
+                <p class="product-description">@product.Description</p>           
+            </div>
+        }
+    </div>
+}
+
+
+<a href="@Url.Action("Index", "Products")">Go to the Products Catalog</a>
