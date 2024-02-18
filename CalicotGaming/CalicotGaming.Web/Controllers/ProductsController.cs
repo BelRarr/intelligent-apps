@@ -43,7 +43,7 @@ namespace CalicotGaming.Web.Controllers
         {
             if(string.IsNullOrEmpty(promptText))
             {
-                return View();
+                return View(new ChatModel());
             }
 
             OpenAIClient client = new OpenAIClient(
@@ -68,7 +68,13 @@ namespace CalicotGaming.Web.Controllers
 
             ChatCompletions response = responseWithoutStream.Value;
 
-            return View("Assistant", response.Choices[0].Message.Content);
+            var model = new ChatModel
+            {
+                Prompt = promptText,
+                Completion = response.Choices[0].Message.Content
+            };
+
+            return View("Assistant", model);
         }
 
 /*

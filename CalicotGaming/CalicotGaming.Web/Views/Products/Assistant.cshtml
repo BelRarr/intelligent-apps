@@ -1,4 +1,4 @@
-@model string
+@model ChatModel
 
 @{
     ViewData["Title"] = "Chat with our AI assistant";
@@ -14,9 +14,17 @@
 </div>
 
 
-<div class="chatcompletion">
-    <p>@Model</p>
+<div class="chat-completion-container">
+
+    <div class="chat-prompt">
+        <p>@Model.Prompt</p>
+    </div>
+
+    <div class="chat-completion">
+        <p>@Model.Completion</p>
+    </div>
 </div>
+
 
 
 <a href="@Url.Action("Index", "Products")">Go to the Products Catalog</a>
