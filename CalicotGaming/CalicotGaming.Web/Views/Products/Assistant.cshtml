@@ -14,17 +14,21 @@
 </div>
 
 
-<div class="chat-completion-container">
+@if(!string.IsNullOrEmpty(Model.Prompt)) 
+{    
+    <div class="chat-completion-container">
 
-    <div class="chat-prompt">
-        <p>@Model.Prompt</p>
+        <div class="chat-prompt">
+            <strong>You:</strong>
+            <p>@Model.Prompt</p>
+        </div>
+
+        <div class="chat-completion">
+            <strong>the Assistant:</strong>
+            <p>@Model.Completion</p>
+        </div>
     </div>
-
-    <div class="chat-completion">
-        <p>@Model.Completion</p>
-    </div>
-</div>
-
+}
 
 
 <a href="@Url.Action("Index", "Products")">Go to the Products Catalog</a>
