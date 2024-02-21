@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CalicotGaming.Web.Models;
 
-// dotnet add package Azure.AI.OpenAI --version 1.0.0-beta.5
+// dotnet add package Azure.AI.OpenAI --version 1.0.0-beta.13
 using Azure;
 using Azure.AI.OpenAI;
 
@@ -39,6 +39,8 @@ namespace CalicotGaming.Web.Controllers
         // SAMPLE QUESTIONS: 
         // - what gaming console do you recommend for less than 200$? 
         // - Recommend a racing game for the Xbox
+        // - I have a budget of 200$. I want to buy a racing game and a horror game for the Xbox X. Any advise?
+        // - give me a good recipe for a pizza
         public async Task<IActionResult> Assistant(string promptText)
         {
             if(string.IsNullOrEmpty(promptText))
@@ -50,21 +52,42 @@ namespace CalicotGaming.Web.Controllers
             new Uri(_config["AzureOpenAI:aoaiEndpoint"]),
             new AzureKeyCredential(_config["AzureOpenAI:aoaiKey"]));
             
-            Response<ChatCompletions> responseWithoutStream = await client.GetChatCompletionsAsync(
-            "gpt-35-turbo",
-            new ChatCompletionsOptions()
+
+            var ChatCompletionsOptions = new ChatCompletionsOptions()
             {
                 Messages =
                 {
-                    new ChatMessage(ChatRole.System, _config["AzureOpenAI:systemRoleMessage"]),
-                    new ChatMessage(ChatRole.User, promptText)     
+                    // note that ChatMessage classes types have changed since beta-5
+                    new ChatRequestSystemMessage(_config["AzureOpenAI:systemRoleMessage"]),
+                    new ChatRequestUserMessage(promptText)     
+                }, 
+                // supplement the context with data from our database that was indexed into Azure AI Search
+                AzureExtensionsOptions = new AzureChatExtensionsOptions()
+                {
+                    Extensions =
+                    {
+                        new AzureCognitiveSearchChatExtensionConfiguration()
+                        {
+                            SearchEndpoint = new Uri(_config["AzureOpenAI:aiSearchEndpoint"]),
+                            IndexName = "products-ai-index",
+                            Key = _config["AzureOpenAI:aiSearchKey"],
+                            SemanticConfiguration = "products-semantic-config",
+                            QueryType = new AzureCognitiveSearchQueryType(AzureCognitiveSearchQueryType.Semantic.ToString())
+                        },
+                    },
                 },
+                // the rest of the configuration
+                DeploymentName = "gpt-35-turbo",
                 Temperature = (float)0.7,
                 MaxTokens = 800,
                 NucleusSamplingFactor = (float)0.95,
                 FrequencyPenalty = 0,
                 PresencePenalty = 0,
-            });
+            };
+
+            Response<ChatCompletions> responseWithoutStream = await client.GetChatCompletionsAsync(
+                ChatCompletionsOptions
+            );
 
             ChatCompletions response = responseWithoutStream.Value;
 
